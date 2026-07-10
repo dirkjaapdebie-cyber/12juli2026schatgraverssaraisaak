@@ -87,10 +87,11 @@
         .letter-slider { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 8px 0; font-weight: 600; }
         .letter-slider input[type=range] { width: 160px; accent-color: var(--goud-donker); }
 
+        /* Rad scherm scrollbaar geheel */
         #scherm5 { max-height: 80vh; overflow-y: auto; padding-right: 8px; }
 
         .rad-wrapper { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 24px; margin-top: 10px; }
-        .rad-container { text-align: center; position: relative; flex-shrink: 0; }
+        .rad-container { text-align: center; position: relative; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
         canvas#radCanvas { max-width: 100%; width: 380px; height: 380px; cursor: pointer; border-radius: 50%; box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
         .rad-pijl { font-size: 2.4em; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); z-index: 5; pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25)); color: #c0392b; }
         .rad-vragenlijst { background: #fffdf5; border: 2px solid #e8b84b; border-radius: 18px; padding: 16px; max-width: 320px; min-width: 240px; text-align: left; box-shadow: 0 4px 14px rgba(0,0,0,0.05); }
@@ -98,8 +99,38 @@
         .rad-vragenlijst ol { padding-left: 22px; margin: 0; }
         .rad-vragenlijst li { margin-bottom: 8px; font-size: 0.95em; line-height: 1.4; transition: 0.2s; padding: 4px 8px; border-radius: 8px; }
         .rad-vragenlijst li.actief { background: #fef2d9; font-weight: 700; color: #c4963a; border-left: 4px solid #c4963a; padding-left: 6px; }
-        .rad-resultaat { font-size: 1.2em; font-weight: 700; color: var(--rood); margin-top: 10px; min-height: 3em; padding: 8px; background: #fff8f0; border-radius: 12px; display: inline-block; max-width: 90%; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .draai-knop { font-size: 1.3em; padding: 14px 40px; border-radius: 50px; border: none; background: var(--oranje); color: #fff; font-weight: 800; cursor: pointer; letter-spacing: 0.5px; transition: 0.3s; box-shadow: 0 6px 18px rgba(240,160,80,0.4); font-family: inherit; margin-top: 10px; animation: pulse 2s infinite; }
+        .rad-resultaat {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--rood);
+            margin: 10px 0;
+            min-height: 3em;
+            max-height: 120px;
+            overflow-y: auto;
+            padding: 8px 12px;
+            background: #fff8f0;
+            border-radius: 12px;
+            max-width: 100%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            text-align: center;
+            word-break: break-word;
+        }
+        .draai-knop {
+            font-size: 1.3em;
+            padding: 14px 40px;
+            border-radius: 50px;
+            border: none;
+            background: var(--oranje);
+            color: #fff;
+            font-weight: 800;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: 0.3s;
+            box-shadow: 0 6px 18px rgba(240,160,80,0.4);
+            font-family: inherit;
+            margin-top: 10px;
+            animation: pulse 2s infinite;
+        }
         .draai-knop:hover { background: #d87a30; transform: scale(1.04); }
         .draai-knop:disabled { background: #bbb; cursor: not-allowed; animation: none; box-shadow: none; }
         @keyframes pulse { 0%,100% { box-shadow: 0 6px 18px rgba(240,160,80,0.4); } 50% { box-shadow: 0 6px 28px rgba(240,160,80,0.7); } }
@@ -119,6 +150,7 @@
             .rad-wrapper { flex-direction: column; align-items: center; }
             .rad-vragenlijst { max-width: 100%; }
             canvas#radCanvas { width: 300px; height: 300px; }
+            .rad-resultaat { max-height: 100px; }
         }
     </style>
 </head>
@@ -137,7 +169,7 @@
             <button class="btn btn-goud" id="btnScherm5">🎡 Rad van Fortuin</button>
             <button class="btn btn-roze" id="btnScherm6" style="background:#e88aaa;color:#fff;">🧩 Letterspel</button>
             <hr style="margin:8px 0;">
-            <small>Vraag tonen (bij scherm 2):</small><br>
+            <small>Vraag tonen (bij scherm 3):</small><br>
             <button class="btn btn-blauw" id="btnVraag1" style="font-size:0.8em;padding:6px 14px;">Vraag 1</button>
             <button class="btn btn-blauw" id="btnVraag2" style="font-size:0.8em;padding:6px 14px;">Vraag 2</button>
             <button class="btn btn-blauw" id="btnVraag3" style="font-size:0.8em;padding:6px 14px;">Vraag 3</button>
@@ -215,8 +247,8 @@
             <div class="rad-container">
                 <div class="rad-pijl">▼</div>
                 <canvas id="radCanvas" width="380" height="380"></canvas>
-                <button class="draai-knop" id="draaiKnop">🎡 DRAAIEN!</button>
                 <div class="rad-resultaat" id="radResultaat">👆 Druk op DRAAIEN om een vraag te kiezen!</div>
+                <button class="draai-knop" id="draaiKnop">🎡 DRAAIEN!</button>
             </div>
             <div class="rad-vragenlijst" id="radVragenLijst">
                 <h4>📋 Vragenlijst</h4>
@@ -650,7 +682,6 @@
                 vak.addEventListener('drop', handleDrop);
                 doelVakken.appendChild(vak);
             }
-            // Algemene instructie zonder het doelwoord te verklappen
             document.getElementById('spelOpdracht').textContent = 'Versleep de letters naar de vakjes en vorm het juiste woord.';
             sleepCorrect = false;
             btnVolgende.style.display = 'none';
@@ -759,9 +790,8 @@
         db.ref('currentScreen').once('value').then(snap => { const v=snap.val(); if(v) toonScherm(v); else toonScherm(1); });
         db.ref('currentQuestion').once('value').then(snap => { const v=snap.val(); if(v) toonVraag(v); });
         if(youtubeFrame) youtubeFrame.src = 'https://www.youtube.com/embed/fL_RtVx7QPs?rel=0&modestbranding=1&enablejsapi=1';
-        console.log('🎉 Schatgravers app zonder hulpzinnen, met reset- en opnieuwknoppen geladen!');
+        console.log('🎉 Schatgravers app met verbeterd rad, zonder hulpzinnen geladen!');
     })();
 </script>
 </body>
 </html>
-```
