@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schatgravers - Sara & Isaak: Ik kan weer lachen!</title>
+    <style>
+        :root {
+            --goud: #e8b84b;
+            --goud-donker: #c4963a;
+            --zand: #f5e6c8;
+            --tent: #d4a574;
+            --hemel: #87ceeb;
+            --olijf: #6b8e4f;
+            --rood: #e0705c;
+            --paars: #8b5e9e;
+            --blauw: #5b8ec4;
+            --groen: #5bae8c;
+            --oranje: #f0a050;
+            --roze: #e88aaa;
+            --tekst: #3d2b1f;
+            --licht: #fff9f0;
+            --card-bg: #ffffff;
+            --schaduw: 0 6px 24px rgba(0,0,0,0.10);
+            --radius: 20px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', 'Verdana', 'Arial', sans-serif;
+            background: linear-gradient(180deg, #fef7e9 0%, #fce8c4 30%, #f9d99a 60%, #f5e6c8 100%);
+            background-attachment: fixed; min-height: 100vh; color: var(--tekst);
+            display: flex; justify-content: center; align-items: center; padding: 10px;
+            transition: background 0.6s;
+        }
+        .container {
+            width: 100%; max-width: 960px; background: var(--card-bg);
+            border-radius: var(--radius); box-shadow: var(--schaduw); padding: 24px 20px 30px;
+            position: relative; overflow: hidden; min-height: 500px; transition: all 0.4s ease;
+            border: 3px solid var(--goud);
+        }
+        .container::before { content: ''; position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: var(--goud); opacity: 0.15; border-radius: 50%; pointer-events: none; }
+        .container::after { content: ''; position: absolute; bottom: -20px; left: -20px; width: 70px; height: 70px; background: var(--olijf); opacity: 0.10; border-radius: 50%; pointer-events: none; }
+        h1 { font-size: 2em; color: var(--goud-donker); text-align: center; margin-bottom: 6px; font-weight: 800; letter-spacing: 0.5px; }
+        h2 { font-size: 1.3em; color: var(--tekst); text-align: center; margin-bottom: 16px; font-weight: 600; opacity: 0.85; }
+        h3 { font-size: 1.1em; color: var(--rood); margin: 10px 0 6px; font-weight: 700; }
+        .emoji-header { font-size: 3em; text-align: center; margin-bottom: 4px; }
+        .screen { display: none; animation: fadeSlide 0.45s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+        .login-box { text-align: center; }
+        .login-box input { font-size: 1.3em; padding: 14px 18px; border-radius: 50px; border: 3px solid var(--goud); width: 80%; max-width: 350px; text-align: center; outline: none; font-family: inherit; transition: 0.3s; background: var(--licht); }
+        .login-box input:focus { border-color: var(--goud-donker); box-shadow: 0 0 0 6px rgba(232,184,75,0.18); }
+        .login-box button { font-size: 1.2em; padding: 13px 36px; border-radius: 50px; border: none; background: var(--goud); color: #fff; font-weight: 700; cursor: pointer; margin-top: 14px; letter-spacing: 0.4px; transition: 0.25s; box-shadow: 0 4px 12px rgba(196,150,58,0.35); font-family: inherit; }
+        .login-box button:hover { background: var(--goud-donker); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(196,150,58,0.45); }
+
+        .livefeed { background: #fffdf5; border: 2px dashed var(--goud); border-radius: 16px; padding: 16px; min-height: 80px; max-height: 220px; overflow-y: auto; margin: 12px 0; font-size: 1em; text-align: left; transition: 0.3s; }
+        .livefeed .entry { padding: 8px 12px; margin: 4px 0; background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); animation: popIn 0.35s ease; font-weight: 500; }
+        .livefeed .entry .naam { color: var(--goud-donker); font-weight: 800; }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        .btn { font-size: 1em; padding: 11px 24px; border-radius: 50px; border: none; cursor: pointer; font-weight: 700; letter-spacing: 0.3px; transition: 0.25s; font-family: inherit; box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
+        .btn-goud { background: var(--goud); color: #fff; }
+        .btn-goud:hover { background: var(--goud-donker); transform: translateY(-2px); }
+        .btn-blauw { background: var(--blauw); color: #fff; }
+        .btn-blauw:hover { background: #3d6fa0; transform: translateY(-2px); }
+        .btn-groen { background: var(--groen); color: #fff; }
+        .btn-groen:hover { background: #3d8b6a; transform: translateY(-2px); }
+        .btn-paars { background: var(--paars); color: #fff; }
+        .btn-paars:hover { background: #6e3d80; transform: translateY(-2px); }
+
+        .docent-knop { position: absolute; top: 10px; right: 14px; background: none; border: none; font-size: 1.6em; cursor: pointer; z-index: 10; opacity: 0.5; transition: 0.3s; }
+        .docent-knop:hover { opacity: 1; transform: rotate(30deg); }
+        .docent-panel { display: none; background: #fffef9; border: 2px solid var(--goud-donker); border-radius: 14px; padding: 14px; margin: 10px 0; text-align: center; animation: fadeSlide 0.3s ease; }
+        .docent-panel.show { display: block; }
+        .docent-panel input { padding: 8px 14px; border-radius: 20px; border: 2px solid #ccc; font-family: inherit; text-align: center; }
+
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 16px; margin: 10px 0; box-shadow: var(--schaduw); }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 16px; }
+
+        .antwoord-row { display: flex; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+        .antwoord-row input { flex: 1; min-width: 180px; padding: 12px 16px; border-radius: 30px; border: 2px solid #e0d5c0; font-family: inherit; font-size: 1em; background: var(--licht); outline: none; transition: 0.3s; }
+        .antwoord-row input:focus { border-color: var(--goud); box-shadow: 0 0 0 4px rgba(232,184,75,0.12); }
+
+        .bijbel-tekst { background: #fffef7; border-left: 5px solid var(--goud); padding: 16px 18px; border-radius: 0 14px 14px 0; max-height: 55vh; overflow-y: auto; font-size: 1.1em; line-height: 1.7; margin: 10px 0; font-family: 'Georgia', 'Times New Roman', serif; }
+        .bijbel-tekst h3 { color: var(--goud-donker); font-family: 'Segoe UI', 'Verdana', sans-serif; margin-top: 0; }
+        .letter-slider { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 8px 0; font-weight: 600; }
+        .letter-slider input[type=range] { width: 160px; accent-color: var(--goud-donker); }
+
+        #scherm5 { max-height: 80vh; overflow-y: auto; padding-right: 8px; }
+
+        .rad-wrapper { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 24px; margin-top: 10px; }
+        .rad-container { text-align: center; position: relative; flex-shrink: 0; }
+        canvas#radCanvas { max-width: 100%; width: 380px; height: 380px; cursor: pointer; border-radius: 50%; box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+        .rad-pijl { font-size: 2.4em; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); z-index: 5; pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25)); color: #c0392b; }
+        .rad-vragenlijst { background: #fffdf5; border: 2px solid #e8b84b; border-radius: 18px; padding: 16px; max-width: 320px; min-width: 240px; text-align: left; box-shadow: 0 4px 14px rgba(0,0,0,0.05); }
+        .rad-vragenlijst h4 { color: var(--goud-donker); margin-bottom: 8px; text-align: center; }
+        .rad-vragenlijst ol { padding-left: 22px; margin: 0; }
+        .rad-vragenlijst li { margin-bottom: 8px; font-size: 0.95em; line-height: 1.4; transition: 0.2s; padding: 4px 8px; border-radius: 8px; }
+        .rad-vragenlijst li.actief { background: #fef2d9; font-weight: 700; color: #c4963a; border-left: 4px solid #c4963a; padding-left: 6px; }
+        .rad-resultaat { font-size: 1.2em; font-weight: 700; color: var(--rood); margin-top: 10px; min-height: 3em; padding: 8px; background: #fff8f0; border-radius: 12px; display: inline-block; max-width: 90%; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .draai-knop { font-size: 1.3em; padding: 14px 40px; border-radius: 50px; border: none; background: var(--oranje); color: #fff; font-weight: 800; cursor: pointer; letter-spacing: 0.5px; transition: 0.3s; box-shadow: 0 6px 18px rgba(240,160,80,0.4); font-family: inherit; margin-top: 10px; animation: pulse 2s infinite; }
+        .draai-knop:hover { background: #d87a30; transform: scale(1.04); }
+        .draai-knop:disabled { background: #bbb; cursor: not-allowed; animation: none; box-shadow: none; }
+        @keyframes pulse { 0%,100% { box-shadow: 0 6px 18px rgba(240,160,80,0.4); } 50% { box-shadow: 0 6px 28px rgba(240,160,80,0.7); } }
+
+        .sleep-spel { text-align: center; }
+        .letters-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 20px 0; }
+        .letter-blok { width: 60px; height: 60px; background: var(--goud); color: #fff; font-size: 2em; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 12px; cursor: grab; user-select: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.1s; }
+        .letter-blok:active { cursor: grabbing; transform: scale(1.08); }
+        .doel-vakken { display: flex; justify-content: center; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+        .doel-vak { width: 60px; height: 60px; border: 3px dashed var(--goud-donker); border-radius: 12px; background: #fffef7; display: flex; align-items: center; justify-content: center; font-size: 2em; font-weight: bold; color: var(--tekst); transition: background 0.2s; }
+        .doel-vak.drag-over { background: #fef2d9; border-color: #c4963a; }
+        .spel-controls { margin-top: 15px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
+        .eindvraag { margin-top: 20px; font-size: 1.2em; }
+
+        @media (max-width: 700px) {
+            .rad-wrapper { flex-direction: column; align-items: center; }
+            .rad-vragenlijst { max-width: 100%; }
+            canvas#radCanvas { width: 300px; height: 300px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="mainContainer">
+    <button class="docent-knop" id="docentToggle" title="Docent toegang">⚙️</button>
+
+    <div class="docent-panel" id="docentPanel">
+        <input type="password" id="docentWachtwoord" placeholder="Docent wachtwoord">
+        <button class="btn btn-goud" id="docentLoginBtn">🔑 Login</button>
+        <span id="docentStatus" style="margin-left:8px;font-weight:700;"></span>
+        <div id="docentControls" style="display:none;margin-top:10px;">
+            <button class="btn btn-blauw" id="btnScherm2">📋 Livefeed welkom</button>
+            <button class="btn btn-groen" id="btnScherm3">▶️ YouTube & Vragen</button>
+            <button class="btn btn-paars" id="btnScherm4">📖 Bijbelverhaal</button>
+            <button class="btn btn-goud" id="btnScherm5">🎡 Rad van Fortuin</button>
+            <button class="btn btn-roze" id="btnScherm6" style="background:#e88aaa;color:#fff;">🧩 Letterspel</button>
+            <hr style="margin:8px 0;">
+            <small>Vraag tonen (bij scherm 3):</small><br>
+            <button class="btn btn-blauw" id="btnVraag1" style="font-size:0.8em;padding:6px 14px;">Vraag 1</button>
+            <button class="btn btn-blauw" id="btnVraag2" style="font-size:0.8em;padding:6px 14px;">Vraag 2</button>
+            <button class="btn btn-blauw" id="btnVraag3" style="font-size:0.8em;padding:6px 14px;">Vraag 3</button>
+            <button class="btn btn-blauw" id="btnVraag4" style="font-size:0.8em;padding:6px 14px;">Vraag 4</button>
+            <hr style="margin:8px 0;">
+            <button class="btn btn-goud" id="resetKnop" style="background:#c0392b;">🔄 Reset sessie</button>
+        </div>
+    </div>
+
+    <!-- SCHERM 1: Inlog -->
+    <div class="screen active" id="scherm1">
+        <div class="emoji-header">😄⛺✨</div>
+        <h1>Schatgravers</h1>
+        <h2>Sara & Isaak: "Ik kan weer lachen!"</h2>
+        <div class="login-box">
+            <p style="font-size:1.1em;margin-bottom:8px;">👋 Vul je <strong>voornaam</strong> in om mee te doen:</p>
+            <input type="text" id="naamInput" placeholder="Jouw voornaam..." maxlength="30" autocomplete="off">
+            <br>
+            <button class="btn btn-goud" id="inlogBtn">🎉 Doe mee!</button>
+            <p id="inlogFeedback" style="margin-top:8px;min-height:1.4em;font-weight:600;color:var(--rood);"></p>
+        </div>
+        <div class="livefeed" id="livefeedNamen"><em style="opacity:0.6;">Nog niemand ingelogd... 👀</em></div>
+    </div>
+
+    <!-- SCHERM 2: Livefeed Welkom -->
+    <div class="screen" id="scherm2">
+        <div class="emoji-header">🎉🥳🎈</div>
+        <h1>Wat geweldig leuk en grappig dat jij meedoet!</h1>
+        <div class="livefeed" id="livefeedWelkom"><em style="opacity:0.6;">Wachten op deelnemers...</em></div>
+        <p style="text-align:center;opacity:0.7;">👆 Jullie namen verschijnen hier live!</p>
+    </div>
+
+    <!-- SCHERM 3: YouTube & Vragen -->
+    <div class="screen" id="scherm3">
+        <h2>🎬 Even lachen! Bekijk deze video:</h2>
+        <div class="video-wrapper">
+            <iframe id="youtubeFrame" src="https://www.youtube.com/embed/fL_RtVx7QPs?rel=0&modestbranding=1" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <div id="vraagContainer" style="margin-top:12px;">
+            <p style="text-align:center;opacity:0.7;">🎤 De docent stelt zo een vraag...</p>
+            <h3 id="vraagTekst" style="text-align:center;display:none;"></h3>
+            <div class="antwoord-row" id="antwoordRow" style="display:none;">
+                <input type="text" id="antwoordInput" placeholder="Typ jouw antwoord...">
+                <button class="btn btn-groen" id="antwoordVerstuur">📨 Verstuur</button>
+            </div>
+            <div class="livefeed" id="livefeedAntwoorden" style="max-height:180px;"><em style="opacity:0.6;">Antwoorden verschijnen hier...</em></div>
+        </div>
+    </div>
+
+    <!-- SCHERM 4: Bijbelverhaal -->
+    <div class="screen" id="scherm4">
+        <h2>📖 Het verhaal van Sara & Isaak</h2>
+        <div class="letter-slider">
+            <span>🔤 A</span>
+            <input type="range" id="letterSlider" min="14" max="32" value="18" step="1">
+            <span style="font-size:1.4em;">A</span>
+        </div>
+        <div class="bijbel-tekst" id="bijbelTekst">
+            <h3>8-12 jaar — Genesis 18:1-15 en Genesis 21:1-7</h3>
+            <h4>Er komen drie mannen bij Abraham</h4>
+            <p>Op een dag kwam de Heer weer bij Abraham. Dat gebeurde bij de eiken van Mamre. Abraham zat in de ingang van zijn tent. Het was midden op de dag en het was heel warm. Opeens zag Abraham drie mannen staan. Hij liep vlug de tent uit naar hen toe. Hij maakte een diepe buiging en zei: 'Kom alstublieft met me mee. U bent mijn gast. Ik zal wat water laten halen, dan kunt u uw voeten wassen. En rust hier maar uit onder de boom. Het is goed dat u hier langsgekomen bent. Ik zal ook eten voor u halen. Dan krijgt u weer kracht om verder te gaan.' 'Goed,' zeiden de mannen, 'doet u dat maar.'</p>
+            <h4>Abraham geeft de mannen een maaltijd</h4>
+            <p>Abraham ging vlug de tent in. Hij zei tegen Sara: 'Pak snel een zak fijn meel, maak deeg en bak brood.' Daarna liep hij vlug naar zijn dieren en hij zocht een mooi kalf uit. Hij zei tegen een knecht: 'Maak een lekker stuk vlees klaar van dit kalf.' De knecht ging snel aan het werk. Toen het eten klaar was, haalde Abraham ook nog boter en melk. Hij bracht alles naar zijn gasten. Zij gingen eten en Abraham bleef bij hen onder de boom staan.</p>
+            <h4>Over een jaar krijgt Sara een zoon</h4>
+            <p>Toen vroegen de mannen: 'Waar is uw vrouw Sara?' 'In de tent,' zei Abraham. Eén van de mannen was de Heer. Hij zei: 'Over een jaar kom ik terug. Dan zal Sara een zoon hebben.' Sara stond vlakbij te luisteren, bij de ingang van de tent. Abraham en Sara waren allebei al heel oud. Sara werd allang niet meer ongesteld. Ze begon in zichzelf te lachen. Want ze dacht: Hoe kan ik nog zwanger worden? Daar ben ik veel te oud voor! En mijn man is ook al heel oud! Maar de Heer zei tegen Abraham: 'Waarom lacht Sara? Waarom denkt ze dat ze te oud is om een kind te krijgen? Voor mij is toch niets te moeilijk! Over een jaar kom ik terug en dan heeft Sara een zoon.' Sara schrok. 'Ik heb niet gelachen,' zei ze. Maar de Heer zei: 'Jawel. Je hebt wel gelachen.'</p>
+            <h4>Abraham en Sara krijgen een zoon</h4>
+            <p>De Heer had beloofd dat hij aan Sara zou denken. En dat deed hij ook. Abraham was al oud. Maar de Heer zorgde ervoor dat Sara zwanger werd en dat Abraham en Sara een zoon kregen. Dat gebeurde een jaar nadat God het tegen Abraham gezegd had. Abraham noemde hun zoon Isaak. Sara zei: 'God heeft ervoor gezorgd dat ik weer kan lachen. En iedereen die mijn verhaal hoort, zal ook lachen. Niemand had tegen Abraham durven zeggen dat ik nog eens een kind aan de borst zou hebben. Want Abraham is al zo oud. Toch hebben we een zoon gekregen.' Toen Isaak acht dagen oud was, werd hij besneden. Want God had gezegd dat alle jongens besneden moesten worden. Abraham was honderd jaar oud toen Isaak geboren werd.</p>
+        </div>
+    </div>
+
+    <!-- SCHERM 5: Rad van Fortuin -->
+    <div class="screen" id="scherm5">
+        <h2>🎡 Rad van Fortuin – Vragen!</h2>
+        <div class="rad-wrapper">
+            <div class="rad-container">
+                <div class="rad-pijl">▼</div>
+                <canvas id="radCanvas" width="380" height="380"></canvas>
+                <button class="draai-knop" id="draaiKnop">🎡 DRAAIEN!</button>
+                <div class="rad-resultaat" id="radResultaat">👆 Druk op DRAAIEN om een vraag te kiezen!</div>
+            </div>
+            <div class="rad-vragenlijst" id="radVragenLijst">
+                <h4>📋 Vragenlijst</h4>
+                <ol id="radVragenOl"></ol>
+            </div>
+        </div>
+        <p style="text-align:center;opacity:0.7;margin-top:6px;">Eén deelnemer mag draaien. Het rad stopt op een vraag.</p>
+    </div>
+
+    <!-- SCHERM 6: Sleepspel -->
+    <div class="screen" id="scherm6">
+        <h2>🧩 Letterspel: Versleep de letters!</h2>
+        <div class="sleep-spel" id="sleepSpel">
+            <p id="spelOpdracht">Versleep de letters naar de vakjes en vorm het juiste woord.</p>
+            <div class="letters-container" id="lettersContainer"></div>
+            <div class="doel-vakken" id="doelVakken"></div>
+            <div class="spel-controls">
+                <button class="btn btn-goud" id="btnVolgende" style="display:none;">Volgende ➡️</button>
+                <button class="btn btn-paars" id="btnOpnieuw">🔄 Woord opnieuw</button>
+            </div>
+            <div class="eindvraag" id="eindVraagContainer" style="display:none;">
+                <p>Welk woord vormen de eerste letters van alle woorden?</p>
+                <input type="text" id="eindAntwoord" placeholder="Typ het woord...">
+                <button class="btn btn-groen" id="eindControleer">Controleer</button>
+                <p id="eindFeedback" style="font-weight:bold;margin-top:6px;"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
+    (function() {
+        const firebaseConfig = {
+            apiKey: "AIzaSyDxFVlEYMIewTN6bdSOTL3H8el1V3jm-DM",
+            authDomain: "schatgraversemoties.firebaseapp.com",
+            databaseURL: "https://schatgraversemoties-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "schatgraversemoties",
+            storageBucket: "schatgraversemoties.firebasestorage.app",
+            messagingSenderId: "180003857797",
+            appId: "1:180003857797:web:4890f9a02e1ac8c1f150ec"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let mijnNaam = '';
+        let isDocent = false;
+        let huidigScherm = 1;
+        let huidigeVraag = null;
+        let radDraaiend = false;
+        let radHoek = 0;
+        let radTimer = null;
+        const DOCENT_WACHTWOORD = 'Sara2024';
+
+        const radVragen = [
+            'Wat betekent "gastvrij zijn" volgens jou? Is gastvrij zijn alleen iets wat je doet, of ook iets van wie je bent?',
+            'Waarom geeft Abraham aan zijn gasten niet een beetje eten, maar juist heel veel en het beste wat hij heeft, denk je?',
+            'Hoe zouden de gasten zich gevoeld hebben toen ze zo welkom werden ontvangen?',
+            'Is er iemand bij wie jij je heel welkom voelt? Wat maakt dat zo?',
+            'Als er iemand bij jou komt logeren of op bezoek is, wat doe je dan zodat diegene het fijn heeft?',
+            'In het verhaal blijkt dat één van de gasten de Heer is. Kun je iemand ontmoeten zonder te weten hoe bijzonder die persoon is?',
+            'Denk je dat God soms verborgen kan zijn in mensen? Waarom denk je dat?'
+        ];
+        const radKleuren = ['#e8b84b','#e0705c','#5b8ec4','#6b8e4f','#f0a050','#8b5e9e','#5bae8c'];
+        const aantalSegmenten = radVragen.length;
+        const segmentHoek = (2 * Math.PI) / aantalSegmenten;
+
+        const spelWoorden = [
+            { letters: 'AEGNST', doel: 'GASTEN' },
+            { letters: 'AAABHMR', doel: 'ABRAHAM' },
+            { letters: 'AASR', doel: 'SARA' },
+            { letters: 'ENTT', doel: 'TENT' },
+            { letters: 'EELSV', doel: 'VLEES' },
+            { letters: 'ENRSTU', doel: 'RUSTEN' },
+            { letters: 'AAIKS', doel: 'ISAAK' },
+            { letters: 'AEJHW', doel: 'JAWEH' }
+        ];
+        let huidigWoordIndex = 0;
+        let sleepCorrect = false;
+
+        const schermen = {
+            1: document.getElementById('scherm1'),
+            2: document.getElementById('scherm2'),
+            3: document.getElementById('scherm3'),
+            4: document.getElementById('scherm4'),
+            5: document.getElementById('scherm5'),
+            6: document.getElementById('scherm6')
+        };
+        const docentToggle = document.getElementById('docentToggle');
+        const docentPanel = document.getElementById('docentPanel');
+        const docentWachtwoord = document.getElementById('docentWachtwoord');
+        const docentLoginBtn = document.getElementById('docentLoginBtn');
+        const docentStatus = document.getElementById('docentStatus');
+        const docentControls = document.getElementById('docentControls');
+        const naamInput = document.getElementById('naamInput');
+        const inlogBtn = document.getElementById('inlogBtn');
+        const inlogFeedback = document.getElementById('inlogFeedback');
+        const livefeedNamen = document.getElementById('livefeedNamen');
+        const livefeedWelkom = document.getElementById('livefeedWelkom');
+        const livefeedAntwoorden = document.getElementById('livefeedAntwoorden');
+        const vraagTekst = document.getElementById('vraagTekst');
+        const antwoordRow = document.getElementById('antwoordRow');
+        const antwoordInput = document.getElementById('antwoordInput');
+        const antwoordVerstuur = document.getElementById('antwoordVerstuur');
+        const bijbelTekst = document.getElementById('bijbelTekst');
+        const letterSlider = document.getElementById('letterSlider');
+        const radCanvas = document.getElementById('radCanvas');
+        const radResultaat = document.getElementById('radResultaat');
+        const draaiKnop = document.getElementById('draaiKnop');
+        const youtubeFrame = document.getElementById('youtubeFrame');
+        const radVragenOl = document.getElementById('radVragenOl');
+        const lettersContainer = document.getElementById('lettersContainer');
+        const doelVakken = document.getElementById('doelVakken');
+        const btnVolgende = document.getElementById('btnVolgende');
+        const btnOpnieuw = document.getElementById('btnOpnieuw');
+        const eindVraagContainer = document.getElementById('eindVraagContainer');
+        const eindAntwoord = document.getElementById('eindAntwoord');
+        const eindControleer = document.getElementById('eindControleer');
+        const eindFeedback = document.getElementById('eindFeedback');
+        const resetKnop = document.getElementById('resetKnop');
+
+        function vulVragenlijst() {
+            radVragenOl.innerHTML = '';
+            radVragen.forEach((vraag, index) => {
+                const li = document.createElement('li');
+                li.id = 'vraagItem-' + index;
+                li.textContent = (index + 1) + '. ' + vraag;
+                radVragenOl.appendChild(li);
+            });
+        }
+        vulVragenlijst();
+
+        function markeerActieveVraag(index) {
+            const alleItems = radVragenOl.querySelectorAll('li');
+            alleItems.forEach(item => item.classList.remove('actief'));
+            if (index !== undefined && index >= 0 && index < aantalSegmenten) {
+                const actiefItem = document.getElementById('vraagItem-' + index);
+                if (actiefItem) actiefItem.classList.add('actief');
+            }
+        }
+
+        function toonScherm(num) {
+            huidigScherm = num;
+            Object.values(schermen).forEach(s => s.classList.remove('active'));
+            if (schermen[num]) schermen[num].classList.add('active');
+            if (num === 3 && !huidigeVraag) {
+                vraagTekst.style.display = 'none';
+                antwoordRow.style.display = 'none';
+            }
+            if (num === 5) setTimeout(tekenRad, 200);
+            if (num === 6) resetSpel();
+        }
+
+        db.ref('currentScreen').on('value', (snap) => {
+            const val = snap.val();
+            if (val && val >= 1 && val <= 6) toonScherm(val);
+        });
+
+        db.ref('currentQuestion').on('value', (snap) => {
+            const val = snap.val();
+            if (val && val >= 1 && val <= 4) toonVraag(val);
+            else verbergVraag();
+        });
+
+        function toonVraag(num) {
+            huidigeVraag = num;
+            const vragen = ['','😂 Was dit een video om te lachen?','📝 Noteer de grap waar je net het hardst om gelachen hebt.','🕐 Wanneer heb je laatst hard gelachen?','💃 Wat doet jouw lijf als je lacht?'];
+            if (vragen[num]) {
+                vraagTekst.textContent = 'Vraag ' + num + ': ' + vragen[num];
+                vraagTekst.style.display = 'block';
+                antwoordRow.style.display = 'flex';
+                antwoordInput.value = '';
+                antwoordInput.focus();
+                laadAntwoorden(num);
+            }
+        }
+        function verbergVraag() {
+            huidigeVraag = null;
+            vraagTekst.style.display = 'none';
+            antwoordRow.style.display = 'none';
+            livefeedAntwoorden.innerHTML = '<em style="opacity:0.6;">Antwoorden verschijnen hier...</em>';
+        }
+        function laadAntwoorden(vraagNr) {
+            db.ref('antwoorden/vraag' + vraagNr).once('value').then((snap) => {
+                const data = snap.val();
+                livefeedAntwoorden.innerHTML = '';
+                if (data) {
+                    Object.values(data).forEach(item => {
+                        const div = document.createElement('div'); div.className = 'entry';
+                        div.innerHTML = '<span class="naam">' + escapeHTML(item.naam) + ':</span> ' + escapeHTML(item.tekst);
+                        livefeedAntwoorden.appendChild(div);
+                    });
+                } else livefeedAntwoorden.innerHTML = '<em style="opacity:0.6;">Nog geen antwoorden.</em>';
+                livefeedAntwoorden.scrollTop = livefeedAntwoorden.scrollHeight;
+            });
+        }
+        [1,2,3,4].forEach(n => {
+            db.ref('antwoorden/vraag' + n).on('value', (snap) => {
+                if (huidigeVraag === n) {
+                    const data = snap.val();
+                    livefeedAntwoorden.innerHTML = '';
+                    if (data) {
+                        Object.values(data).forEach(item => {
+                            const div = document.createElement('div'); div.className = 'entry';
+                            div.innerHTML = '<span class="naam">' + escapeHTML(item.naam) + ':</span> ' + escapeHTML(item.tekst);
+                            livefeedAntwoorden.appendChild(div);
+                        });
+                    } else livefeedAntwoorden.innerHTML = '<em style="opacity:0.6;">Nog geen antwoorden.</em>';
+                    livefeedAntwoorden.scrollTop = livefeedAntwoorden.scrollHeight;
+                }
+            });
+        });
+
+        // ==================== INLOGGEN ====================
+        inlogBtn.addEventListener('click', () => {
+            const naam = naamInput.value.trim();
+            if (!naam) { inlogFeedback.textContent = '⚠️ Vul eerst je voornaam in!'; return; }
+            if (naam.length < 2) { inlogFeedback.textContent = '⚠️ Minimaal 2 letters.'; return; }
+            mijnNaam = naam;
+            inlogFeedback.textContent = '✅ Welkom, ' + naam + '!'; inlogFeedback.style.color = 'var(--groen)';
+            db.ref('deelnemers').push({ naam: naam, tijd: firebase.database.ServerValue.TIMESTAMP });
+            db.ref('livefeedWelkom').push({ naam: naam, bericht: 'Wat geweldig leuk en grappig dat jij meedoet, ' + naam + '!', tijd: firebase.database.ServerValue.TIMESTAMP });
+            naamInput.disabled = true; inlogBtn.disabled = true; inlogBtn.textContent = '✅ Ingelogd!';
+        });
+        naamInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') inlogBtn.click(); });
+
+        db.ref('deelnemers').on('value', (snap) => {
+            const data = snap.val(); livefeedNamen.innerHTML = '';
+            if (data) {
+                const namen = [...new Set(Object.values(data).map(d => d.naam))];
+                namen.forEach(n => {
+                    const div = document.createElement('div'); div.className = 'entry';
+                    div.innerHTML = '👋 <span class="naam">' + escapeHTML(n) + '</span> doet mee!';
+                    livefeedNamen.appendChild(div);
+                });
+            } else livefeedNamen.innerHTML = '<em style="opacity:0.6;">Nog niemand ingelogd... 👀</em>';
+            livefeedNamen.scrollTop = livefeedNamen.scrollHeight;
+        });
+        db.ref('livefeedWelkom').on('value', (snap) => {
+            const data = snap.val(); livefeedWelkom.innerHTML = '';
+            if (data) {
+                Object.values(data).forEach(item => {
+                    const div = document.createElement('div'); div.className = 'entry';
+                    div.innerHTML = '🎉 <span class="naam">' + escapeHTML(item.naam) + '</span>: ' + escapeHTML(item.bericht || '');
+                    livefeedWelkom.appendChild(div);
+                });
+            } else livefeedWelkom.innerHTML = '<em style="opacity:0.6;">Wachten op deelnemers...</em>';
+            livefeedWelkom.scrollTop = livefeedWelkom.scrollHeight;
+        });
+
+        antwoordVerstuur.addEventListener('click', verstuurAntwoord);
+        antwoordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') verstuurAntwoord(); });
+        function verstuurAntwoord() {
+            const tekst = antwoordInput.value.trim();
+            if (!tekst || !huidigeVraag) return;
+            if (!mijnNaam) { alert('Je moet eerst inloggen met je voornaam!'); return; }
+            db.ref('antwoorden/vraag' + huidigeVraag).push({
+                naam: mijnNaam, tekst: tekst, tijd: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => { antwoordInput.value = ''; antwoordInput.focus(); });
+        }
+
+        // ==================== DOCENT FUNCTIES ====================
+        docentToggle.addEventListener('click', () => docentPanel.classList.toggle('show'));
+        docentLoginBtn.addEventListener('click', () => {
+            if (docentWachtwoord.value.trim() === DOCENT_WACHTWOORD) {
+                isDocent = true; docentStatus.textContent = '✅ Docent!'; docentStatus.style.color = 'var(--groen)';
+                docentControls.style.display = 'block'; docentWachtwoord.value = '';
+            } else {
+                docentStatus.textContent = '❌ Fout wachtwoord'; docentStatus.style.color = 'var(--rood)';
+                isDocent = false; docentControls.style.display = 'none';
+            }
+        });
+        document.getElementById('btnScherm2').addEventListener('click', () => { if(isDocent) { db.ref('currentScreen').set(2); db.ref('currentQuestion').set(null); } });
+        document.getElementById('btnScherm3').addEventListener('click', () => { if(isDocent) { db.ref('currentScreen').set(3); db.ref('currentQuestion').set(null); } });
+        document.getElementById('btnScherm4').addEventListener('click', () => { if(isDocent) { db.ref('currentScreen').set(4); db.ref('currentQuestion').set(null); } });
+        document.getElementById('btnScherm5').addEventListener('click', () => { if(isDocent) { db.ref('currentScreen').set(5); db.ref('currentQuestion').set(null); } });
+        document.getElementById('btnScherm6').addEventListener('click', () => { if(isDocent) { db.ref('currentScreen').set(6); db.ref('currentQuestion').set(null); } });
+        document.getElementById('btnVraag1').addEventListener('click', () => { if(isDocent) { db.ref('currentQuestion').set(1); db.ref('currentScreen').set(3); } });
+        document.getElementById('btnVraag2').addEventListener('click', () => { if(isDocent) { db.ref('currentQuestion').set(2); db.ref('currentScreen').set(3); } });
+        document.getElementById('btnVraag3').addEventListener('click', () => { if(isDocent) { db.ref('currentQuestion').set(3); db.ref('currentScreen').set(3); } });
+        document.getElementById('btnVraag4').addEventListener('click', () => { if(isDocent) { db.ref('currentQuestion').set(4); db.ref('currentScreen').set(3); } });
+
+        // ==================== RESET SESSIE ====================
+        resetKnop.addEventListener('click', () => {
+            if (!isDocent) return;
+            if (confirm('Weet je zeker dat je de hele sessie wilt resetten? Alle deelnemers, antwoorden en het rad worden gewist.')) {
+                db.ref('currentScreen').set(1);
+                db.ref('currentQuestion').set(null);
+                db.ref('deelnemers').remove();
+                db.ref('livefeedWelkom').remove();
+                db.ref('antwoorden').remove();
+                db.ref('radResultaat').remove();
+
+                mijnNaam = '';
+                naamInput.disabled = false;
+                inlogBtn.disabled = false;
+                inlogBtn.textContent = '🎉 Doe mee!';
+                inlogFeedback.textContent = '';
+                inlogFeedback.style.color = 'var(--rood)';
+                livefeedNamen.innerHTML = '<em style="opacity:0.6;">Nog niemand ingelogd... 👀</em>';
+                livefeedWelkom.innerHTML = '<em style="opacity:0.6;">Wachten op deelnemers...</em>';
+                livefeedAntwoorden.innerHTML = '<em style="opacity:0.6;">Antwoorden verschijnen hier...</em>';
+                radResultaat.textContent = '👆 Druk op DRAAIEN om een vraag te kiezen!';
+                markeerActieveVraag(-1);
+                radHoek = 0;
+                tekenRad(0);
+                huidigWoordIndex = 0;
+                if (huidigScherm === 6) resetSpel();
+                toonScherm(1);
+            }
+        });
+
+        letterSlider.addEventListener('input', () => { bijbelTekst.style.fontSize = letterSlider.value + 'px'; });
+        bijbelTekst.style.fontSize = '18px';
+
+        function tekenRad(draaiHoek = 0) {
+            const ctx = radCanvas.getContext('2d');
+            const w = radCanvas.width, h = radCanvas.height, cx = w/2, cy = h/2, r = Math.min(cx,cy)-8;
+            ctx.clearRect(0,0,w,h);
+            for (let i=0; i<aantalSegmenten; i++) {
+                const startHoek = draaiHoek + i*segmentHoek;
+                const eindHoek = startHoek + segmentHoek;
+                ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,startHoek,eindHoek); ctx.closePath();
+                ctx.fillStyle = radKleuren[i]; ctx.fill();
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.stroke();
+                ctx.save(); ctx.translate(cx,cy); ctx.rotate(startHoek + segmentHoek/2);
+                ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.font = 'bold 15px "Segoe UI"';
+                ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 2;
+                ctx.fillText((i+1)+'', r*0.62, 6);
+                ctx.restore();
+            }
+            ctx.beginPath(); ctx.arc(cx,cy,r*0.2,0,2*Math.PI); ctx.fillStyle='#fff'; ctx.fill(); ctx.strokeStyle='#ccc'; ctx.stroke();
+            ctx.fillStyle='#3d2b1f'; ctx.font='bold 18px "Segoe UI"'; ctx.textAlign='center'; ctx.fillText('🎡',cx,cy+6);
+        }
+
+        function bepaalSegment(draaiHoek) {
+            let hoek = draaiHoek % (2*Math.PI); if (hoek<0) hoek+=2*Math.PI;
+            const pijlHoek = -Math.PI/2;
+            let relHoek = (pijlHoek - hoek + 2*Math.PI) % (2*Math.PI);
+            return Math.floor(relHoek / segmentHoek) % aantalSegmenten;
+        }
+
+        function draaiRad() {
+            if (radDraaiend) return;
+            radDraaiend = true; draaiKnop.disabled = true; draaiKnop.textContent = '🎡 Draaien...';
+            const extraRondjes = 4 + Math.floor(Math.random()*6);
+            const willekeurigeHoek = Math.random()*2*Math.PI;
+            const totaleDraai = extraRondjes*2*Math.PI + willekeurigeHoek;
+            const startHoek = radHoek, eindHoek = startHoek + totaleDraai, duur = 3200 + Math.random()*1800;
+            const startTijd = Date.now();
+            function animatie() {
+                const verstreken = Date.now()-startTijd, voortgang = Math.min(verstreken/duur,1);
+                const eased = 1 - Math.pow(1-voortgang,3.5);
+                radHoek = startHoek + totaleDraai*eased;
+                tekenRad(radHoek);
+                if (voortgang < 1) radTimer = requestAnimationFrame(animatie);
+                else {
+                    radHoek = eindHoek; tekenRad(eindHoek);
+                    radDraaiend = false; draaiKnop.disabled = false; draaiKnop.textContent = '🎡 DRAAIEN!';
+                    const segmentIndex = bepaalSegment(eindHoek);
+                    const vraag = radVragen[segmentIndex];
+                    radResultaat.textContent = '📌 Vraag: ' + vraag;
+                    markeerActieveVraag(segmentIndex);
+                    db.ref('radResultaat').set({ vraag: vraag, index: segmentIndex, tijd: firebase.database.ServerValue.TIMESTAMP });
+                }
+            }
+            radTimer = requestAnimationFrame(animatie);
+        }
+        draaiKnop.addEventListener('click', draaiRad);
+
+        db.ref('radResultaat').on('value', (snap) => {
+            const data = snap.val();
+            if (data && data.vraag && data.index !== undefined) {
+                radResultaat.textContent = '📌 Vraag: ' + data.vraag;
+                markeerActieveVraag(data.index);
+            } else {
+                radResultaat.textContent = '👆 Druk op DRAAIEN om een vraag te kiezen!';
+                markeerActieveVraag(-1);
+            }
+        });
+
+        tekenRad(radHoek);
+
+        // ==================== SLEEPSPEL ====================
+        function resetSpel() {
+            huidigWoordIndex = 0;
+            sleepCorrect = false;
+            btnVolgende.style.display = 'none';
+            eindVraagContainer.style.display = 'none';
+            laadWoord(huidigWoordIndex);
+        }
+
+        function laadWoord(index) {
+            if (index >= spelWoorden.length) {
+                lettersContainer.innerHTML = '';
+                doelVakken.innerHTML = '';
+                document.getElementById('spelOpdracht').textContent = 'Goed gedaan! Alle woorden zijn gemaakt.';
+                btnVolgende.style.display = 'none';
+                btnOpnieuw.style.display = 'none';
+                eindVraagContainer.style.display = 'block';
+                eindAntwoord.value = '';
+                eindFeedback.textContent = '';
+                return;
+            }
+            btnOpnieuw.style.display = 'inline-block';
+            const woordObj = spelWoorden[index];
+            const letters = woordObj.letters.split('');
+            for (let i = letters.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [letters[i], letters[j]] = [letters[j], letters[i]];
+            }
+            lettersContainer.innerHTML = '';
+            doelVakken.innerHTML = '';
+            letters.forEach((letter, i) => {
+                const blok = document.createElement('div');
+                blok.className = 'letter-blok';
+                blok.draggable = true;
+                blok.textContent = letter;
+                blok.id = 'letter-' + i;
+                blok.addEventListener('dragstart', handleDragStart);
+                blok.addEventListener('dragend', handleDragEnd);
+                lettersContainer.appendChild(blok);
+            });
+            for (let i = 0; i < woordObj.doel.length; i++) {
+                const vak = document.createElement('div');
+                vak.className = 'doel-vak';
+                vak.dataset.index = i;
+                vak.addEventListener('dragover', handleDragOver);
+                vak.addEventListener('dragleave', handleDragLeave);
+                vak.addEventListener('drop', handleDrop);
+                doelVakken.appendChild(vak);
+            }
+            // Algemene instructie zonder het doelwoord te verklappen
+            document.getElementById('spelOpdracht').textContent = 'Versleep de letters naar de vakjes en vorm het juiste woord.';
+            sleepCorrect = false;
+            btnVolgende.style.display = 'none';
+        }
+
+        btnOpnieuw.addEventListener('click', () => {
+            laadWoord(huidigWoordIndex);
+        });
+
+        let draggedItem = null;
+        function handleDragStart(e) {
+            draggedItem = this;
+            e.dataTransfer.setData('text/plain', this.textContent);
+            this.style.opacity = '0.5';
+        }
+        function handleDragEnd(e) {
+            this.style.opacity = '1';
+            draggedItem = null;
+        }
+        function handleDragOver(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        }
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            if (!draggedItem) return;
+            const letter = e.dataTransfer.getData('text/plain');
+            if (this.textContent.trim() !== '') {
+                const bestaandeLetter = this.textContent;
+                this.textContent = '';
+                const nieuwBlok = document.createElement('div');
+                nieuwBlok.className = 'letter-blok';
+                nieuwBlok.draggable = true;
+                nieuwBlok.textContent = bestaandeLetter;
+                nieuwBlok.addEventListener('dragstart', handleDragStart);
+                nieuwBlok.addEventListener('dragend', handleDragEnd);
+                lettersContainer.appendChild(nieuwBlok);
+            }
+            this.textContent = letter;
+            draggedItem.remove();
+            draggedItem = null;
+            checkCorrect();
+        }
+
+        function checkCorrect() {
+            const vakken = document.querySelectorAll('.doel-vak');
+            let ingevuld = '';
+            vakken.forEach(v => { ingevuld += v.textContent.trim(); });
+            const doel = spelWoorden[huidigWoordIndex].doel;
+            if (ingevuld === doel) {
+                sleepCorrect = true;
+                btnVolgende.style.display = 'inline-block';
+                startConfetti();
+            } else {
+                sleepCorrect = false;
+                btnVolgende.style.display = 'none';
+            }
+        }
+
+        btnVolgende.addEventListener('click', () => {
+            huidigWoordIndex++;
+            laadWoord(huidigWoordIndex);
+        });
+
+        eindControleer.addEventListener('click', () => {
+            const antwoord = eindAntwoord.value.trim().toUpperCase();
+            if (antwoord === 'GASTVRIJ') {
+                eindFeedback.textContent = '✅ Helemaal goed! Het woord is GASTVRIJ.';
+                startConfetti();
+            } else {
+                eindFeedback.textContent = '❌ Probeer het nog eens.';
+            }
+        });
+
+        function startConfetti() {
+            const confettiContainer = document.createElement('div');
+            confettiContainer.className = 'confetti';
+            document.body.appendChild(confettiContainer);
+            for (let i = 0; i < 80; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'absolute';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = -20 + 'px';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.background = '#' + Math.floor(Math.random()*16777215).toString(16);
+                confetti.style.borderRadius = '50%';
+                confetti.style.animation = 'confettiFall ' + (2 + Math.random()*3) + 's linear forwards';
+                confettiContainer.appendChild(confetti);
+            }
+            setTimeout(() => { confettiContainer.remove(); }, 4000);
+        }
+
+        const style = document.createElement('style');
+        style.textContent = '@keyframes confettiFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }';
+        document.head.appendChild(style);
+
+        function escapeHTML(str) {
+            const div = document.createElement('div'); div.textContent = str; return div.innerHTML;
+        }
+
+        db.ref('currentScreen').once('value').then(snap => { const v=snap.val(); if(v) toonScherm(v); else toonScherm(1); });
+        db.ref('currentQuestion').once('value').then(snap => { const v=snap.val(); if(v) toonVraag(v); });
+        if(youtubeFrame) youtubeFrame.src = 'https://www.youtube.com/embed/fL_RtVx7QPs?rel=0&modestbranding=1&enablejsapi=1';
+        console.log('🎉 Schatgravers app zonder hulpzinnen, met reset- en opnieuwknoppen geladen!');
+    })();
+</script>
+</body>
+</html>
+```
