@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Schatgravers - Sara & Isaak: Ik kan weer lachen!</title>
     <style>
-        /* === CSS (ongewijzigd) === */
+        /* === CSS (basis structuur) === */
         :root {
             --goud: #e8b84b;
             --goud-donker: #c4963a;
@@ -296,6 +296,7 @@
             <button class="btn btn-goud" id="inlogBtn">🎉 Doe mee!</button>
             <p id="inlogFeedback" style="margin-top:8px;min-height:1.4em;font-weight:600;color:var(--rood);"></p>
         </div>
+        <!-- LIVE FEED MET NAMEN -->
         <div class="livefeed" id="livefeedNamen"><em style="opacity:0.6;">Nog niemand ingelogd... 👀</em></div>
     </div>
 
@@ -311,11 +312,14 @@
     <div class="screen" id="scherm3">
         <h2>🎬 Even lachen! Bekijk deze video:</h2>
         <div class="video-wrapper">
-            <iframe id="youtubeFrame" src="https://www.youtube.com/embed/fL_RtVx7QPs?rel=0&modestbranding=1" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <!-- YouTube iframe zonder enablejsapi om fout 153 te voorkomen -->
+            <iframe id="youtubeFrame" src="https://www.youtube.com/embed/fL_RtVx7QPs?rel=0&modestbranding=1&playsinline=1" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
         <div id="vraagContainer" style="margin-top:12px;">
             <p style="text-align:center;opacity:0.7;">🎤 De docent stelt zo een vraag...</p>
             <h3 id="vraagTekst" style="text-align:center;display:none;"></h3>
+            
+            <!-- ANTWOORD INVOER EN LIVE FEED -->
             <div class="antwoord-row" id="antwoordRow" style="display:none;">
                 <input type="text" id="antwoordInput" placeholder="Typ jouw antwoord..." inputmode="text" autocorrect="on">
                 <button class="btn btn-groen" id="antwoordVerstuur">📨 Verstuur</button>
@@ -361,6 +365,16 @@
             </div>
         </div>
         <p style="text-align:center;opacity:0.7;margin-top:6px;">Eén deelnemer mag draaien. Het rad stopt op een vraag.</p>
+        
+        <!-- ANTWOORD INVOER VOOR RAD -->
+        <div id="radAntwoordContainer" style="margin-top:15px; display:none;">
+            <h3 id="radVraagTekst" style="text-align:center;"></h3>
+            <div class="antwoord-row">
+                <input type="text" id="radAntwoordInput" placeholder="Typ jouw antwoord op de radvraag..." inputmode="text" autocorrect="on">
+                <button class="btn btn-groen" id="radAntwoordVerstuur">📨 Verstuur</button>
+            </div>
+            <div class="livefeed" id="livefeedRadAntwoorden" style="max-height:180px;"><em style="opacity:0.6;">Antwoorden verschijnen hier...</em></div>
+        </div>
     </div>
 
     <!-- SCHERM 6: Sleepspel -->
@@ -425,6 +439,7 @@
         let isDocent = false;
         let huidigScherm = 1;
         let huidigeVraag = null;
+        let huidigeRadVraagIndex = null; // Om de radvraag bij te houden
         let radDraaiend = false;
         let radHoek = 0;
         let radTimer = null;
@@ -496,6 +511,13 @@
         const eindControleer = document.getElementById('eindControleer');
         const eindFeedback = document.getElementById('eindFeedback');
         const resetKnop = document.getElementById('resetKnop');
+        
+        // Rad Antwoord elementen
+        const radAntwoordContainer = document.getElementById('radAntwoordContainer');
+        const radVraagTekst = document.getElementById('radVraagTekst');
+        const radAntwoordInput = document.getElementById('radAntwoordInput');
+        const radAntwoordVerstuur = document.getElementById('radAntwoordVerstuur');
+        const livefeedRadAntwoorden = document.getElementById('livefeedRadAntwoorden');
 
         // ==================== FIREBASE LISTENERS ====================
         function activeerFirebaseListeners() {
@@ -533,9 +555,11 @@
                 if (data && data.vraag && data.index !== undefined) {
                     radResultaat.textContent = '📌 Vraag: ' + data.vraag;
                     markeerActieveVraag(data.index);
+                    toonRadAntwoordInterface(data.index, data.vraag);
                 } else {
                     radResultaat.textContent = '👆 Druk op DRAAIEN om een vraag te kiezen!';
                     markeerActieveVraag(-1);
+                    verbergRadAntwoordInterface();
                 }
             });
 
@@ -557,6 +581,26 @@
                         livefeedAntwoorden.scrollTop = livefeedAntwoorden.scrollHeight;
                     }
                 });
+            });
+
+            // Luister naar antwoorden op radvragen
+            db.ref('radAntwoorden').on('value', (snap) => {
+                const data = snap.val();
+                livefeedRadAntwoorden.innerHTML = '';
+                if (data) {
+                    // Sorteer op tijd of gewoon weergeven
+                    const entries = Object.values(data);
+                    entries.sort((a, b) => a.tijd - b.tijd);
+                    entries.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'entry';
+                        div.innerHTML = '<span class="naam">' + escapeHTML(item.naam) + ':</span> ' + escapeHTML(item.tekst);
+                        livefeedRadAntwoorden.appendChild(div);
+                    });
+                } else {
+                    livefeedRadAntwoorden.innerHTML = '<em style="opacity:0.6;">Nog geen antwoorden.</em>';
+                }
+                livefeedRadAntwoorden.scrollTop = livefeedRadAntwoorden.scrollHeight;
             });
         }
 
@@ -622,9 +666,77 @@
                     antwoordRow.style.display = 'none';
                 }
             }
-            if (num === 5) setTimeout(tekenRad, 200);
+            if (num === 5) {
+                setTimeout(tekenRad, 200);
+                // Controleer of er al een radvraag actief is
+                if (db) {
+                    db.ref('radResultaat').once('value').then(snap => {
+                        const data = snap.val();
+                        if (data && data.vraag && data.index !== undefined) {
+                            toonRadAntwoordInterface(data.index, data.vraag);
+                        } else {
+                            verbergRadAntwoordInterface();
+                        }
+                    });
+                }
+            } else {
+                verbergRadAntwoordInterface();
+            }
             if (num === 6) resetSpel();
         }
+
+        // ==================== RAD ANTWOORD INTERFACE ====================
+        function toonRadAntwoordInterface(index, vraag) {
+            if (huidigScherm !== 5) return; // Alleen tonen op radscherm
+            
+            radAntwoordContainer.style.display = 'block';
+            radVraagTekst.textContent = 'Vraag ' + (index+1) + ': ' + vraag;
+            huidigeRadVraagIndex = index;
+            
+            if (mijnNaam) {
+                radAntwoordInput.disabled = false;
+                radAntwoordVerstuur.disabled = false;
+                radAntwoordInput.placeholder = "Typ jouw antwoord op de radvraag...";
+            } else {
+                radAntwoordInput.disabled = true;
+                radAntwoordVerstuur.disabled = true;
+                radAntwoordInput.placeholder = "Log eerst in om te antwoorden...";
+            }
+        }
+
+        function verbergRadAntwoordInterface() {
+            radAntwoordContainer.style.display = 'none';
+            huidigeRadVraagIndex = null;
+        }
+
+        // ==================== RAD ANTWOORD VERSTUREN ====================
+        function verstuurRadAntwoord() {
+            const tekst = radAntwoordInput.value.trim();
+            if (!tekst || huidigeRadVraagIndex === null) return;
+            if (!mijnNaam) { alert('Je moet eerst inloggen met je voornaam!'); return; }
+            
+            if (db) {
+                db.ref('radAntwoorden').push({
+                    naam: mijnNaam,
+                    tekst: tekst,
+                    vraagIndex: huidigeRadVraagIndex,
+                    tijd: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    radAntwoordInput.value = '';
+                    radAntwoordInput.focus();
+                }).catch((error) => {
+                    console.error('Fout bij versturen:', error);
+                    alert('Er is een fout opgetreden. Probeer het later opnieuw.');
+                });
+            } else {
+                alert('Geen database beschikbaar.');
+            }
+        }
+
+        radAntwoordVerstuur.addEventListener('click', verstuurRadAntwoord);
+        radAntwoordInput.addEventListener('keydown', (e) => { 
+            if (e.key === 'Enter') verstuurRadAntwoord(); 
+        });
 
         function toonVraag(num) {
             huidigeVraag = num;
@@ -702,19 +814,45 @@
                     inlogBtn.disabled = true;
                     inlogBtn.textContent = '✅ Ingelogd!';
                     
+                    // Toon antwoordvelden als er een vraag actief is
                     if (huidigeVraag) {
                         antwoordRow.style.display = 'flex';
                     }
                     
+                    // Als er een radvraag actief is, activeer dan de radinput
+                    if (huidigeRadVraagIndex !== null && huidigScherm === 5) {
+                        radAntwoordInput.disabled = false;
+                        radAntwoordVerstuur.disabled = false;
+                        radAntwoordInput.placeholder = "Typ jouw antwoord op de radvraag...";
+                    }
+
                     setTimeout(() => {
                         toonScherm(2);
                     }, 1000);
                 }).catch((error) => {
                     console.error('Firebase fout:', error);
-                    inlogFeedback.textContent = '⚠️ Database fout! Probeer opnieuw.';
-                    inlogFeedback.style.color = 'var(--rood)';
+                    // Fallback: toch inloggen, maar zonder Firebase
+                    inlogFeedback.textContent = '✅ Welkom, ' + naam + '! (offline modus)';
+                    inlogFeedback.style.color = 'var(--groen)';
+                    naamInput.disabled = true;
+                    inlogBtn.disabled = true;
+                    inlogBtn.textContent = '✅ Ingelogd!';
+                    
+                    if (huidigeVraag) {
+                        antwoordRow.style.display = 'flex';
+                    }
+                    if (huidigeRadVraagIndex !== null && huidigScherm === 5) {
+                        radAntwoordInput.disabled = false;
+                        radAntwoordVerstuur.disabled = false;
+                        radAntwoordInput.placeholder = "Typ jouw antwoord op de radvraag...";
+                    }
+                    
+                    setTimeout(() => {
+                        toonScherm(2);
+                    }, 1000);
                 });
             } else {
+                // Geen Firebase: gewoon inloggen
                 inlogFeedback.textContent = '✅ Welkom, ' + naam + '!';
                 inlogFeedback.style.color = 'var(--groen)';
                 
@@ -722,6 +860,15 @@
                 inlogBtn.disabled = true;
                 inlogBtn.textContent = '✅ Ingelogd!';
                 
+                if (huidigeVraag) {
+                    antwoordRow.style.display = 'flex';
+                }
+                if (huidigeRadVraagIndex !== null && huidigScherm === 5) {
+                    radAntwoordInput.disabled = false;
+                    radAntwoordVerstuur.disabled = false;
+                    radAntwoordInput.placeholder = "Typ jouw antwoord op de radvraag...";
+                }
+
                 setTimeout(() => {
                     toonScherm(2);
                 }, 1000);
@@ -732,7 +879,7 @@
             if (e.key === 'Enter') inlogBtn.click(); 
         });
 
-        // ==================== ANTWOORDEN VERSTUREN ====================
+        // ==================== ANTWOORDEN VERSTUREN (YouTube) ====================
         antwoordVerstuur.addEventListener('click', verstuurAntwoord);
         antwoordInput.addEventListener('keydown', (e) => { 
             if (e.key === 'Enter') verstuurAntwoord(); 
@@ -859,6 +1006,7 @@
                 db.ref('livefeedWelkom').remove();
                 db.ref('antwoorden').remove();
                 db.ref('radResultaat').remove();
+                db.ref('radAntwoorden').remove(); // Nieuwe rad antwoorden verwijderen
                 console.log('✅ Firebase data verwijderd.');
             } else {
                 console.log('⚠️ Geen Firebase database beschikbaar, alleen UI wordt gereset.');
@@ -875,10 +1023,12 @@
             livefeedNamen.innerHTML = '<em style="opacity:0.6;">Nog niemand ingelogd... 👀</em>';
             livefeedWelkom.innerHTML = '<em style="opacity:0.6;">Wachten op deelnemers...</em>';
             livefeedAntwoorden.innerHTML = '<em style="opacity:0.6;">Antwoorden verschijnen hier...</em>';
+            livefeedRadAntwoorden.innerHTML = '<em style="opacity:0.6;">Antwoorden verschijnen hier...</em>';
             radResultaat.textContent = '👆 Druk op DRAAIEN om een vraag te kiezen!';
             markeerActieveVraag(-1);
             radHoek = 0;
             tekenRad(0);
+            verbergRadAntwoordInterface();
             huidigWoordIndex = 0;
             if (huidigScherm === 6) resetSpel();
             toonScherm(1);
@@ -937,6 +1087,9 @@
                     const vraag = radVragen[segmentIndex];
                     radResultaat.textContent = '📌 Vraag: ' + vraag;
                     markeerActieveVraag(segmentIndex);
+                    
+                    // Toon de antwoordinterface en sla op in Firebase
+                    toonRadAntwoordInterface(segmentIndex, vraag);
                     if (db) {
                         db.ref('radResultaat').set({ vraag: vraag, index: segmentIndex, tijd: firebase.database.ServerValue.TIMESTAMP });
                     }
@@ -1190,7 +1343,7 @@
 
         // ==================== INITIALISATIE ====================
         toonScherm(1);
-        if(youtubeFrame) youtubeFrame.src = 'https://www.youtube.com/embed/fL_RtVx7QPs?rel=0&modestbranding=1&enablejsapi=1';
+        if(youtubeFrame) youtubeFrame.src = 'https://www.youtube.com/embed/fL_RtVx7QPs?rel=0&modestbranding=1&playsinline=1';
         console.log('🎉 Schatgravers app geladen!');
     })();
 </script>
